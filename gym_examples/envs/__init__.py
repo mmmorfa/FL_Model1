@@ -1,3 +1,3 @@
 #from gym_examples.envs.grid_world import GridWorldEnv
 #from gym_examples.envs.slice_creation_env import SliceCreationEnv
-from gym_examples.envs.slice_creation_env5 import SliceCreationEnv5
+from gym_examples.envs.slice_creation_env5_training2405 import SliceCreationEnv5

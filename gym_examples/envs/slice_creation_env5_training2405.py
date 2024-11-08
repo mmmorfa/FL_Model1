@@ -18,7 +18,7 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 # ****************************** VNF Generator GLOBALS ******************************
 # File directory
-db_name = '/home/mario/Documents/Joint RAN-MEC Slicing & RA O-RAN/gym_examples/slice_request_db{}'.format(datetime.datetime.now())
+db_name = '/home/mario/Documents/FL_Model1-main/gym_examples/slice_request_db{}'.format(datetime.datetime.now())
 DIRECTORY = db_name
 
 # Number of VNF types dictionary
@@ -696,5 +696,5 @@ class SliceCreationEnv5(gym.Env):
                 self.PRB_map2[indices[0][i], indices[1][i]] = request['UE_ID']
             #self.update_db('PRB_map2', 0)
         
-a = SliceCreationEnv5()
-check_env(a)
+#a = SliceCreationEnv5()
+#check_env(a)

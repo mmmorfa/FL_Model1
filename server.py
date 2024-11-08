@@ -8,7 +8,7 @@ NUM_ROUNDS = 5
 def fit_config_fn(rnd: int) -> dict:
     # Set the save_model flag to True only on the last round
     save_model = rnd == NUM_ROUNDS
-    return {"train_steps": 100, "save_model": save_model, "round": rnd}
+    return {"train_steps": 200000, "save_model": save_model, "round": rnd}
 
 def model_1_strategy():
     strategy = fl.server.strategy.FedAvg(
