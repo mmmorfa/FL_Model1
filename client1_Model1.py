@@ -30,7 +30,8 @@ model = DQN("MlpPolicy",env,
         tau=1.0,                # Target network update rate
         target_update_interval=500,  # Interval (in timesteps) at which the target network is updated
         verbose=0,              # Verbosity level
-        policy_kwargs=policy_kwargs)              
+        policy_kwargs=policy_kwargs,
+        device='cpu')              
 
 #model.set_logger(new_logger)
 #model.learn(total_timesteps=500000, log_interval=1)
