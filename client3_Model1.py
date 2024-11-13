@@ -35,17 +35,18 @@ class CustomDQNClient(DQNClient):
     def fit(self, fit_ins):
         config = fit_ins.config
         include_client_3 = config.get("include_client_3", True)
+        round_num = config.get("round", 1)
         status = Status(code=Code.OK, message="Success")
 
         # Skip training if Client 3 until the last round
         if client_id == 3 and not include_client_3:
-            print(f"Client {client_id} skipping round {config['round']}")
+            print(f"Client {client_id} skipping round {round_num}")
             # Convert parameters to the correct format
             parameters = self.get_parameters()
             return FitRes(status, parameters.parameters, 0, {})
 
         # Train normally otherwise
-        print(f"Client {client_id} training in round {config['round']}")
+        print(f"Client {client_id} training in round {round_num}")
 
         # Ensure we return a FitRes object with properly formatted parameters
         return super().fit(fit_ins)

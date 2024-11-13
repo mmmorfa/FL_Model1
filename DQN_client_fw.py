@@ -4,6 +4,8 @@ from flwr.common import ndarrays_to_parameters, parameters_to_ndarrays, Status, 
 import torch as th
 from stable_baselines3.common.logger import configure
 import os
+import csv
+import sys
 
 class DQNClient(fl.client.Client):
     def __init__(self, model, environment, cid):
@@ -163,42 +165,131 @@ class DQNClient(fl.client.Client):
         )"""
 
 # test
+    # Helper functions for resource utilization calculations
+    def calculate_utilization_mec(self, parameter, current, total, utilization_list):
+        utilization = ((total - current) / total) * 100
+        utilization_list.append(utilization)
+
+    def calculate_utilization_ran(self, bwp, current, utilization_list):
+        indices = np.where(current == 0)
+        available_symbols = len(indices[0])
+        utilization = ((current.size - available_symbols) / current.size) * 100
+        utilization_list.append(utilization)
+
+    def save_evaluation_to_csv(self, round_number, rewards, mec_cpu_utilization, mec_ram_utilization, mec_storage_utilization, mec_bw_utilization, ran_bwp1_utilization, ran_bwp2_utilization):
+            # Set up the folder path for logs
+            log_dir = f"logs/client_{self.cid}"
+            os.makedirs(log_dir, exist_ok=True)
+            file_path = os.path.join(log_dir, f"evaluation_round_{round_number}.csv")
+
+            # Prepare data for CSV
+            data = {
+                "rewards": rewards,
+                "mec_cpu_utilization": mec_cpu_utilization,
+                "mec_ram_utilization": mec_ram_utilization,
+                "mec_storage_utilization": mec_storage_utilization,
+                "mec_bw_utilization": mec_bw_utilization,
+                "ran_bwp1_utilization": ran_bwp1_utilization,
+                "ran_bwp2_utilization": ran_bwp2_utilization
+            }
+
+            # Determine the maximum length of lists to pad shorter lists
+            max_len = max(len(lst) for lst in data.values())
+
+            # Pad lists to the same length
+            padded_data = {key: lst + [None] * (max_len - len(lst)) for key, lst in data.items()}
+
+            # Write data to CSV
+            with open(file_path, "w", newline="") as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(padded_data.keys())  # Write header
+                writer.writerows(zip(*padded_data.values()))  # Write data rows
+
+    def calculate_bandwidth(parameters) -> int:
+        """Calculate the bandwidth of serialized model parameters in bytes."""
+        serialized_params = parameters.SerializeToString()
+        return len(serialized_params)  # Return size in bytes
 
     def evaluate(self, eval_ins: EvaluateIns) -> EvaluateRes:
-        
-        # Set the model parameters to the received parameters for evaluation
-        self.set_parameters(eval_ins.parameters)
-        
-        # Initialize a list to store rewards
-        rewards = []
-        
-        # Perform evaluation for the specified number of episodes
-        for _ in range(eval_ins.config.get("eval_episodes", 1)):  # Default to 1 episode if not specified
-            obs = self.environment.reset()
-            done, reward_sum = False, 0
-            while not done:
-                action, _ = self.model.predict(obs)
-                obs, reward, done, info = self.environment.step(action)
-                reward_sum += reward
-            rewards.append(reward_sum)
-        
-        # Calculate the average reward (could be considered a "negative loss" in this context)
-        average_reward = float(sum(rewards) / len(rewards))
-        
-        # Create a Status object indicating success
-        status = Status(code=Code.OK, message="Evaluation successful")
-        
-        # Number of examples used in evaluation
-        num_examples = 1  # Placeholder, as we're evaluating on episodes rather than a data set
-        
-        # Metrics can include additional information (e.g., average_reward as 'reward')
-        metrics = {"average_reward": average_reward}
-        
-        # Return EvaluateRes with the required fields
-        return EvaluateRes(
-            status=status,
-            loss=-average_reward,  # Negative reward can act as "loss" for consistency
-            num_examples=num_examples,
-            metrics=metrics
-        )
+            # Set the model parameters to the received parameters for evaluation
+            self.set_parameters(eval_ins.parameters)
+
+            # Counter to limit the evaluation period
+            counter_evaluation = 0
+
+            # Initialize lists to store rewards and utilization metrics
+            rewards = []
+            mec_cpu_utilization = []
+            mec_ram_utilization = []
+            mec_storage_utilization = []
+            mec_bw_utilization = []
+            ran_bwp1_utilization = []
+            ran_bwp2_utilization = []
+
+            # Perform evaluation for the specified number of episodes
+            for _ in range(eval_ins.config.get("eval_episodes", 1)):
+                obs, _ = self.environment.reset()
+                terminated, reward_sum = False, 0
+                while counter_evaluation < 100:
+                    # Predict action using the model
+                    action, _ = self.model.predict(obs, deterministic=True)
+                    obs, reward, terminated, truncated, info = self.environment.step(action)
+                    reward_sum += reward
+                    counter_evaluation += 1
+
+                    if terminated or truncated:
+                        obs, _ = self.environment.reset()
+
+                    # Calculate MEC resource utilization
+                    self.calculate_utilization_mec('cpu', self.environment.resources_1['MEC_CPU'], 128, mec_cpu_utilization)
+                    self.calculate_utilization_mec('ram', self.environment.resources_1['MEC_RAM'], 512, mec_ram_utilization)
+                    self.calculate_utilization_mec('storage', self.environment.resources_1['MEC_STORAGE'], 5000, mec_storage_utilization)
+                    self.calculate_utilization_mec('bw', self.environment.resources_1['MEC_BW'], 2000, mec_bw_utilization)
+
+                    # Calculate RAN utilization
+                    self.calculate_utilization_ran('bwp1', self.environment.PRB_map1, ran_bwp1_utilization)
+                    self.calculate_utilization_ran('bwp2', self.environment.PRB_map2, ran_bwp2_utilization)
+
+                # Store the total reward for this episode
+                rewards.append(reward_sum)
+
+            # Save lists to CSV file after evaluation round
+            round_number = eval_ins.config.get("round", 0)
+            self.save_evaluation_to_csv(round_number, rewards, mec_cpu_utilization, mec_ram_utilization, mec_storage_utilization, mec_bw_utilization, ran_bwp1_utilization, ran_bwp2_utilization)
+
+            # Calculate average reward
+            average_reward = float(sum(rewards) / len(rewards))
+
+            # Aggregate resource utilization statistics for this evaluation
+            avg_mec_cpu_utilization = np.mean(mec_cpu_utilization) if mec_cpu_utilization else 0.0
+            avg_mec_ram_utilization = np.mean(mec_ram_utilization) if mec_ram_utilization else 0.0
+            avg_mec_storage_utilization = np.mean(mec_storage_utilization) if mec_storage_utilization else 0.0
+            avg_mec_bw_utilization = np.mean(mec_bw_utilization) if mec_bw_utilization else 0.0
+            avg_ran_bwp1_utilization = np.mean(ran_bwp1_utilization) if ran_bwp1_utilization else 0.0
+            avg_ran_bwp2_utilization = np.mean(ran_bwp2_utilization) if ran_bwp2_utilization else 0.0
+
+            # Create a Status object indicating success
+            status = Status(code=Code.OK, message="Evaluation successful")
+
+            # Number of examples used in evaluation
+            num_examples = 1  # Placeholder, as we're evaluating on episodes rather than a dataset
+
+            # Metrics for resource utilization
+            metrics = {
+                "average_reward": average_reward,
+                "avg_mec_cpu_utilization": avg_mec_cpu_utilization,
+                "avg_mec_ram_utilization": avg_mec_ram_utilization,
+                "avg_mec_storage_utilization": avg_mec_storage_utilization,
+                "avg_mec_bw_utilization": avg_mec_bw_utilization,
+                "avg_ran_bwp1_utilization": avg_ran_bwp1_utilization,
+                "avg_ran_bwp2_utilization": avg_ran_bwp2_utilization,
+            }
+
+            # Return EvaluateRes with calculated utilization as metrics
+            return EvaluateRes(
+                status=status,
+                loss=-average_reward,  # Negative reward as a form of loss
+                num_examples=num_examples,
+                metrics=metrics
+            )
     
