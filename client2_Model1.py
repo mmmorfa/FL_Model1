@@ -20,7 +20,7 @@ policy_kwargs = dict(net_arch=[32])
 model = DQN("MlpPolicy",env, 
         buffer_size=int(1.5e5),  # Replay buffer size
         learning_rate=1e-2,     # Learning rate
-        learning_starts=50000,  # Number of steps before learning starts
+        learning_starts=25000,  # Number of steps before learning starts
         exploration_fraction=0.25,  # Fraction of total timesteps for exploration
         exploration_final_eps=0,  # Final exploration probability after exploration_fraction * total_timesteps
         train_freq=4,           # Update the model every `train_freq` steps

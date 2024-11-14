@@ -83,4 +83,4 @@ log_files = [
     'logs/client_3/progress.csv',
     # Add more clients as needed
 ]
-parse_and_plot_all_rounds(log_files, train_steps=200000)
+parse_and_plot_all_rounds(log_files, train_steps=100000)

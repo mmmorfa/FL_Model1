@@ -15,7 +15,7 @@ policy_kwargs = dict(net_arch=[32])
 model = DQN("MlpPolicy", env, 
         buffer_size=int(1.5e5),
         learning_rate=1e-2,
-        learning_starts=50000,
+        learning_starts=25000,
         exploration_fraction=0.25,
         exploration_final_eps=0,
         train_freq=4,

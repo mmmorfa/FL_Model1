@@ -241,14 +241,14 @@ class DQNClient(fl.client.Client):
                         obs, _ = self.environment.reset()
 
                     # Calculate MEC resource utilization
-                    self.calculate_utilization_mec('cpu', self.environment.resources_1['MEC_CPU'], 128, mec_cpu_utilization)
-                    self.calculate_utilization_mec('ram', self.environment.resources_1['MEC_RAM'], 512, mec_ram_utilization)
-                    self.calculate_utilization_mec('storage', self.environment.resources_1['MEC_STORAGE'], 5000, mec_storage_utilization)
-                    self.calculate_utilization_mec('bw', self.environment.resources_1['MEC_BW'], 2000, mec_bw_utilization)
+                    self.calculate_utilization_mec('cpu', self.environment.unwrapped.resources_1['MEC_CPU'], 30, mec_cpu_utilization)
+                    self.calculate_utilization_mec('ram', self.environment.unwrapped.resources_1['MEC_RAM'], 128, mec_ram_utilization)
+                    self.calculate_utilization_mec('storage', self.environment.unwrapped.resources_1['MEC_STORAGE'], 1000, mec_storage_utilization)
+                    self.calculate_utilization_mec('bw', self.environment.unwrapped.resources_1['MEC_BW'], 300, mec_bw_utilization)
 
                     # Calculate RAN utilization
-                    self.calculate_utilization_ran('bwp1', self.environment.PRB_map1, ran_bwp1_utilization)
-                    self.calculate_utilization_ran('bwp2', self.environment.PRB_map2, ran_bwp2_utilization)
+                    self.calculate_utilization_ran('bwp1', self.environment.unwrapped.PRB_map1, ran_bwp1_utilization)
+                    self.calculate_utilization_ran('bwp2', self.environment.unwrapped.PRB_map2, ran_bwp2_utilization)
 
                 # Store the total reward for this episode
                 rewards.append(reward_sum)
