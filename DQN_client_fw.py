@@ -47,7 +47,6 @@ class DQNClient(fl.client.Client):
         # Return a GetParametersRes object with Parameters and Status
         return GetParametersRes (status=status, parameters=parameters)
     
-    
     def set_parameters(self, parameters):
         # Convert Flower's Parameters object back into a list of numpy arrays
         param_list = parameters_to_ndarrays(parameters)
@@ -111,104 +110,7 @@ class DQNClient(fl.client.Client):
             parameters=updated_parameters,
             num_examples=num_examples,
             metrics=metrics
-        )
-
-    """def evaluate(self, eval_ins: EvaluateIns) -> EvaluateRes:
-        # Set the model parameters to the received parameters for evaluation
-        self.set_parameters(eval_ins.parameters)
-        
-        # Initialize variables for rewards and TD errors
-        rewards = []
-        td_errors = []
-        
-        # Perform evaluation for the specified number of episodes
-        for _ in range(eval_ins.config.get("eval_episodes", 1)):  # Default to 1 episode if not specified
-            obs = self.environment.reset()
-            done, reward_sum = False, 0
-            while not done:
-                # Get the action and Q-value prediction from the model
-                action, q_values = self.model.predict(obs, deterministic=True)
-                
-                # Take a step in the environment
-                next_obs, reward, done, info = self.environment.step(action)
-                reward_sum += reward
-                
-                # Calculate TD error: TD_error = reward + gamma * max(Q(next_obs)) - Q(obs, action)
-                next_q_values = self.model.predict(next_obs, deterministic=True)[1]
-                td_error = reward + self.model.gamma * max(next_q_values) - q_values[action]
-                td_errors.append(td_error.item())  # Store TD error as a scalar
-                
-                # Move to the next observation
-                obs = next_obs
-            
-            rewards.append(reward_sum)
-        
-        # Calculate the average reward and TD error
-        average_reward = float(sum(rewards) / len(rewards))
-        average_td_error = float(sum(td_errors) / len(td_errors)) if td_errors else 0.0
-        
-        # Create a Status object indicating success
-        status = Status(code=Code.OK, message="Evaluation successful")
-        
-        # Number of examples used in evaluation (set to 1 as placeholder)
-        num_examples = 1
-        
-        # Metrics can include both average reward and average TD error
-        metrics = {"average_reward": average_reward, "average_td_error": average_td_error}
-        
-        # Return EvaluateRes with TD error as the loss
-        return EvaluateRes(
-            status=status,
-            loss=average_td_error,  # Use TD error as "loss"
-            num_examples=num_examples,
-            metrics=metrics
-        )"""
-
-# test
-    # Helper functions for resource utilization calculations
-    def calculate_utilization_mec(self, parameter, current, total, utilization_list):
-        utilization = ((total - current) / total) * 100
-        utilization_list.append(utilization)
-
-    def calculate_utilization_ran(self, bwp, current, utilization_list):
-        indices = np.where(current == 0)
-        available_symbols = len(indices[0])
-        utilization = ((current.size - available_symbols) / current.size) * 100
-        utilization_list.append(utilization)
-
-    def save_evaluation_to_csv(self, round_number, rewards, mec_cpu_utilization, mec_ram_utilization, mec_storage_utilization, mec_bw_utilization, ran_bwp1_utilization, ran_bwp2_utilization):
-            # Set up the folder path for logs
-            log_dir = f"logs/client_{self.cid}"
-            os.makedirs(log_dir, exist_ok=True)
-            file_path = os.path.join(log_dir, f"evaluation_round_{round_number}.csv")
-
-            # Prepare data for CSV
-            data = {
-                "rewards": rewards,
-                "mec_cpu_utilization": mec_cpu_utilization,
-                "mec_ram_utilization": mec_ram_utilization,
-                "mec_storage_utilization": mec_storage_utilization,
-                "mec_bw_utilization": mec_bw_utilization,
-                "ran_bwp1_utilization": ran_bwp1_utilization,
-                "ran_bwp2_utilization": ran_bwp2_utilization
-            }
-
-            # Determine the maximum length of lists to pad shorter lists
-            max_len = max(len(lst) for lst in data.values())
-
-            # Pad lists to the same length
-            padded_data = {key: lst + [None] * (max_len - len(lst)) for key, lst in data.items()}
-
-            # Write data to CSV
-            with open(file_path, "w", newline="") as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(padded_data.keys())  # Write header
-                writer.writerows(zip(*padded_data.values()))  # Write data rows
-
-    def calculate_bandwidth(parameters) -> int:
-        """Calculate the bandwidth of serialized model parameters in bytes."""
-        serialized_params = parameters.SerializeToString()
-        return len(serialized_params)  # Return size in bytes
+        ) 
 
     def evaluate(self, eval_ins: EvaluateIns) -> EvaluateRes:
             # Set the model parameters to the received parameters for evaluation
@@ -292,4 +194,49 @@ class DQNClient(fl.client.Client):
                 num_examples=num_examples,
                 metrics=metrics
             )
-    
+   
+    # Helper functions for resource utilization calculations
+    def calculate_utilization_mec(self, parameter, current, total, utilization_list):
+        utilization = ((total - current) / total) * 100
+        utilization_list.append(utilization)
+
+    def calculate_utilization_ran(self, bwp, current, utilization_list):
+        indices = np.where(current == 0)
+        available_symbols = len(indices[0])
+        utilization = ((current.size - available_symbols) / current.size) * 100
+        utilization_list.append(utilization)
+
+    def save_evaluation_to_csv(self, round_number, rewards, mec_cpu_utilization, mec_ram_utilization, mec_storage_utilization, mec_bw_utilization, ran_bwp1_utilization, ran_bwp2_utilization):
+            # Set up the folder path for logs
+            log_dir = f"logs/client_{self.cid}"
+            os.makedirs(log_dir, exist_ok=True)
+            file_path = os.path.join(log_dir, f"evaluation_round_{round_number}.csv")
+
+            # Prepare data for CSV
+            data = {
+                "rewards": rewards,
+                "mec_cpu_utilization": mec_cpu_utilization,
+                "mec_ram_utilization": mec_ram_utilization,
+                "mec_storage_utilization": mec_storage_utilization,
+                "mec_bw_utilization": mec_bw_utilization,
+                "ran_bwp1_utilization": ran_bwp1_utilization,
+                "ran_bwp2_utilization": ran_bwp2_utilization
+            }
+
+            # Determine the maximum length of lists to pad shorter lists
+            max_len = max(len(lst) for lst in data.values())
+
+            # Pad lists to the same length
+            padded_data = {key: lst + [None] * (max_len - len(lst)) for key, lst in data.items()}
+
+            # Write data to CSV
+            with open(file_path, "w", newline="") as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(padded_data.keys())  # Write header
+                writer.writerows(zip(*padded_data.values()))  # Write data rows
+
+    def calculate_bandwidth(parameters) -> int:
+        """Calculate the bandwidth of serialized model parameters in bytes."""
+        serialized_params = parameters.SerializeToString()
+        return len(serialized_params)  # Return size in bytes
+ 

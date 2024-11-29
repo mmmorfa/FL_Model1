@@ -81,6 +81,7 @@ log_files = [
     'logs/client_1/progress.csv',
     'logs/client_2/progress.csv',
     'logs/client_3/progress.csv',
+    'logs/client_4/progress.csv',
     # Add more clients as needed
 ]
 parse_and_plot_all_rounds(log_files, train_steps=100000)

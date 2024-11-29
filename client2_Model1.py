@@ -2,7 +2,7 @@ from stable_baselines3 import DQN
 
 from stable_baselines3.common.logger import configure
 
-from gym_examples.envs.slice_creation_env5_training2405 import SliceCreationEnv5
+from gym_examples.envs.slice_creation_traffic_pattern2 import SliceCreationEnv5
 
 from gymnasium.wrappers import TimeLimit
 
@@ -11,9 +11,6 @@ import flwr as fl
 
 env = SliceCreationEnv5()
 env = TimeLimit(env, max_episode_steps=99)
-
-#log_path = "/home/mario/Documents/Joint RAN-MEC Slicing & RA O-RAN/logs"
-#new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
 
 policy_kwargs = dict(net_arch=[32])
 
@@ -33,9 +30,8 @@ model = DQN("MlpPolicy",env,
         policy_kwargs=policy_kwargs,
         device='cpu')              
 
-#model.set_logger(new_logger)
-#model.learn(total_timesteps=500000, log_interval=1)
-#model.save("/home/mario/Documents/DQN_Models/Joint/gym-examples5/dqn_slices1_2305_arch32_500k_025epsilon_rb150k_tau1_learningstart50k_batch64_target500_learnrate-2")
-
 client = DQNClient(model, env, cid=2)
-fl.client.start_client(server_address="localhost:8080", client=client)
+fl.client.start_client(server_address="localhost:8080", 
+                       client=client,
+                       root_certificates=open("Certificates/rootCA.pem", "rb").read()
+                       )
