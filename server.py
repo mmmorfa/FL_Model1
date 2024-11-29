@@ -9,7 +9,7 @@ NUM_ROUNDS = 5
 # Configuration function to send to clients
 def fit_config_fn(rnd: int) -> dict:
     save_model = rnd == NUM_ROUNDS  # Save model only in the last round
-    return {"train_steps": 100, "save_model": save_model, "round": rnd}
+    return {"train_steps": 100000, "save_model": save_model, "round": rnd}
 
 def model_1_strategy():
     strategy = fl.server.strategy.FedAvg(
