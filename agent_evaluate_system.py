@@ -81,13 +81,6 @@ while cont<100:
     rewards_model1.append(reward1)
     rewards_model2.append(reward2)
 
-    calculate_utilization_mec('cpu', env1.resources_1['MEC_CPU'], 128)
-    calculate_utilization_mec('ram', env1.resources_1['MEC_RAM'], 512)
-    calculate_utilization_mec('storage', env1.resources_1['MEC_STORAGE'], 5000)
-    calculate_utilization_mec('bw', env1.resources_1['MEC_BW'], 2000)
-    calculate_utilization_ran('bwp1', env1.PRB_map1)
-    calculate_utilization_ran('bwp2', env1.PRB_map2)
-
     print("Model 1: ",'Action: ', action1,'Observation: ', obs1, ' | Reward: ', reward1, ' | Terminated: ', terminated1)
     print("Model 2: ",'Action: ', action2,'Observation: ', obs2, ' | Reward: ', reward2, ' | Terminated: ', terminated2)
 
