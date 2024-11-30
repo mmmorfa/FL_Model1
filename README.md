@@ -136,6 +136,7 @@ Evaluate the performance of individual nodes, including Models 1 and 2, and thei
 Developed and maintained by [mmmorfa](https://github.com/mmmorfa).
 
 This work was supported by the Spanish Ministry of Economic Affairs and Digital Transformation and the European Union—NextGenerationEU, in the framework of the Recovery Plan, Transformation and Resilience (PRTR) (Call UNICO I+D 5G 2021, ref. number TSI-063000-2021-3/6/7–OPEN6G), and by the Agencia Estatal de Investigacion of Ministerio de Ciencia e Innovacion of Spain under project PID2022-137329OB-C41/ MCIN/ AEI/10.13039/50110001103.
+
 ---
 
 For questions, issues, or contributions, feel free to open an issue or submit a pull request in this repository!
