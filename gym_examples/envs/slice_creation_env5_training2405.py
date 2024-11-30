@@ -165,7 +165,6 @@ class SliceCreationEnv5(gym.Env):
                              4: [4, 8, 16, 50, 25, 5], 5: [2, 8, 32, 40, 10, 10], 6: [2, 8, 32, 40, 5, 40]}
 
         self.slice_requests = pd.read_csv(DIRECTORY)  # Load VNF requests from the generated CSV
-        #self.slice_requests = pd.read_csv('/data/scripts/DQN_models/Model1/gym_examples/slice_request_db1')    #For pod
         
         # VECTORS----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         self.observation_space = gym.spaces.Box(low=0, high=10000, shape=(7,), dtype=np.float32) #ovservation space composed by Requested resources (MEC_CPU, MEC_RAM, MEC_ST, MEC_BW, RAN_R, RAN_L) and the available resource flag.
@@ -208,7 +207,6 @@ class SliceCreationEnv5(gym.Env):
         self.reset_resources()
 
         self.slice_requests = pd.read_csv(DIRECTORY)  # Load VNF requests from the generated CSV
-        #self.slice_requests = pd.read_csv('/data/scripts/DQN_models/Model1/gym_examples/slice_request_db1')    #For pod
 
         self.next_request = self.read_request()
         #slice_id = self.create_slice(self.next_request)

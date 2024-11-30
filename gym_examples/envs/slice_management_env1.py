@@ -19,9 +19,7 @@ class SliceManagementEnv1(gym.Env):
         # Define environment parameters
 
         self.current_episode = 1
-
         self.sample_size = 4
-
         self.buffer_requests = {}
         
         #Uncomment to train
@@ -58,16 +56,11 @@ class SliceManagementEnv1(gym.Env):
         #Defined parameters per Slice. (Each component is a list of the correspondent slice parameters)-------------------------------------------------------------------------------------
         self.slices_param = {1: [4, 16, 100, 40, 50, 20], 2: [4, 32, 100, 100, 30, 30], 3: [8, 16, 32, 80, 20, 1], 
                              4: [4, 8, 16, 50, 25, 5], 5: [2, 8, 32, 40, 10, 10], 6: [2, 8, 32, 40, 5, 40]}
-
-        #self.slice_requests = pd.read_csv('/home/mario/Documents/DQN_Models/Model 1/gym-examples4/gym_examples/slice_request_db4')  # Load VNF requests from the generated CSV
-        #self.slice_requests = pd.read_csv('/data/scripts/DQN_models/Model1/gym_examples/slice_request_db1')    #For pod
         
         # VECTORS----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         self.observation_space = gym.spaces.Box(low=0, high=10000, shape=(2,), dtype=np.float32) #ovservation space composed by Requested resources (MEC BW) and available MEC resources.
         
         self.action_space = gym.spaces.Discrete(3)  # 0: Blocking, 1: Execute Configuration Action , 2: Do Nothing
-
-        #self.process_requests()
         
         # Other necessary variables and data structures
         self.current_time_step = 1
@@ -114,8 +107,6 @@ class SliceManagementEnv1(gym.Env):
 
         #Uncomment to train
         #self.select_db = randint(1,500)
-        
-        #self.current_time_step = 1
 
         self.reward = 0
         
@@ -289,45 +280,10 @@ class SliceManagementEnv1(gym.Env):
                 else: self.resources_flag = 0 '''
          
     def reset_resources(self):
-        '''
-        self.PRB_map = np.zeros((14, self.PRB_per_channel))
-
-        self.resources_1['MEC_CPU'] = 30
-        self.resources_1['MEC_RAM'] = 128
-        self.resources_1['MEC_STORAGE'] = 100
-        self.resources_1['MEC_BW'] = 300
-
-        self.resources_2['MEC_CPU'] = 30
-        self.resources_2['MEC_RAM'] = 128
-        self.resources_2['MEC_STORAGE'] = 100
-        self.resources_2['MEC_BW'] = 200
-
-        self.resources_3['MEC_CPU'] = 50
-        self.resources_3['MEC_RAM'] = 128
-        self.resources_3['MEC_STORAGE'] = 100
-        self.resources_3['MEC_BW'] = 200
-
-        self.resources_4['MEC_CPU'] = 30
-        self.resources_4['MEC_RAM'] = 128
-        self.resources_4['MEC_STORAGE'] = 100
-        self.resources_4['MEC_BW'] = 200
-
-        self.resources_5['MEC_CPU'] = 20
-        self.resources_5['MEC_RAM'] = 64
-        self.resources_5['MEC_STORAGE'] = 80
-        self.resources_5['MEC_BW'] = 100
-
-        self.resources_6['MEC_CPU'] = 20
-        self.resources_6['MEC_RAM'] = 64
-        self.resources_6['MEC_STORAGE'] = 80
-        self.resources_6['MEC_BW'] = 80
-        '''
-
         self.read_parameter_db('PRB_map1', 0)
         self.read_parameter_db('PRB_map2', 0)
 
         #Available MEC resources (Order: MEC_CPU (Cores), MEC_RAM (GB), MEC_STORAGE (GB), MEC_BW (Mbps))
-        #self.resources = [1000]
         self.read_parameter_db('resources', 1)
         self.read_parameter_db('resources', 2)
         self.read_parameter_db('resources', 3)
@@ -540,15 +496,6 @@ class SliceManagementEnv1(gym.Env):
             if index != None:
                 self.processed_requests[index]['UE_SiNR'] = 4
                 self.update_db('processed_requests', 0)
-
-    def render(self):
-        if self.render_mode == "rgb_array":
-            return self._render_frame()
-
-    def close(self):
-        if self.window is not None:
-            pygame.display.quit()
-            pygame.quit()
             
 #a = SliceManagementEnv1()
 #check_env(a)

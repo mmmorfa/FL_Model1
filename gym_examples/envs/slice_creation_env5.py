@@ -9,7 +9,7 @@ from random import randint
 from math import log2, ceil, floor
 import sqlite3
 import json
-
+import datetime
 
 
 # Pandas config
@@ -17,8 +17,8 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 # ****************************** VNF Generator GLOBALS ******************************
 # File directory
-DIRECTORY = '/home/mario/Documents/DQN_Models/Joint/gym-examples5/gym_examples/slice_request_db5'
-#DIRECTORY = 'data/scripts/DQN_models/Model1/gym_examples/slice_request_db2' #For pod
+db_name = '/home/mario/Documents/FL_Model1-main/gym_examples/slice_request_db{}'.format(datetime.datetime.now())
+DIRECTORY = db_name
 
 # Number of VNF types dictionary
 # i.e. {key: value}, value = [MEC_CPU, MEC_RAM, MEC_Storage, MEC_BW, RAN_R, RAN_L]
@@ -30,7 +30,7 @@ ARRIVAL_RATE = {0: 3, 1: 2, 2: 3, 3: 4, 4: 2, 5: 3, 6: 3, 7: 2, 8: 3, 9: 4, 10: 
 # VNF life cycle from VNF types dictionary
 LIFE_CYCLE_RATE = {0: 10, 1: 8, 2: 5, 3: 3, 4: 9, 5: 10, 6: 10, 7: 8, 8: 5, 9: 3, 10: 9, 11: 10}
 # Num of vnf requests
-NUM_VNF_REQUESTS = 501
+NUM_VNF_REQUESTS = 100
 
 # ****************************** VNF Generator FUNCTIONS ******************************
 
@@ -118,6 +118,8 @@ class SliceCreationEnv5(gym.Env):
     def __init__(self, render_mode=None, size=5):
         # Define environment parameters
 
+        generate_vnf_list()
+
         # RAN Global Parameters -------------------------BWP  1------------------------------------------------------------------------------------------------------------------------------------
         self.numerology1 = 0                       # 0,1,2,3,...
         self.scs1 = 2**(self.numerology1) * 15_000   # Hz
@@ -161,8 +163,7 @@ class SliceCreationEnv5(gym.Env):
         self.slices_param = {1: [4, 16, 100, 40, 50, 20], 2: [4, 32, 100, 100, 30, 30], 3: [8, 16, 32, 80, 20, 1], 
                              4: [4, 8, 16, 50, 25, 5], 5: [2, 8, 32, 40, 10, 10], 6: [2, 8, 32, 40, 5, 40]}
 
-        self.slice_requests = pd.read_csv('/home/mario/Documents/DQN_Models/Joint/gym-examples5/gym_examples/slice_request_db5')  # Load VNF requests from the generated CSV
-        #self.slice_requests = pd.read_csv('/data/scripts/DQN_models/Model1/gym_examples/slice_request_db1')    #For pod
+        self.slice_requests = pd.read_csv(DIRECTORY)  # Load VNF requests from the generated CSV
         
         # VECTORS----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         self.observation_space = gym.spaces.Box(low=0, high=10000, shape=(7,), dtype=np.float32) #ovservation space composed by Requested resources (MEC_CPU, MEC_RAM, MEC_ST, MEC_BW, RAN_R, RAN_L) and the available resource flag.
@@ -204,8 +205,7 @@ class SliceCreationEnv5(gym.Env):
 
         self.reset_resources()
 
-        self.slice_requests = pd.read_csv('/home/mario/Documents/DQN_Models/Joint/gym-examples5/gym_examples/slice_request_db5')  # Load VNF requests from the generated CSV
-        #self.slice_requests = pd.read_csv('/data/scripts/DQN_models/Model1/gym_examples/slice_request_db1')    #For pod
+        self.slice_requests = pd.read_csv(DIRECTORY)  # Load VNF requests from the generated CSV
 
         self.next_request = self.read_request()
         #slice_id = self.create_slice(self.next_request)
@@ -830,15 +830,6 @@ class SliceCreationEnv5(gym.Env):
 
         # Close connection
         conn.close()
-
-    def render(self):
-        if self.render_mode == "rgb_array":
-            return self._render_frame()
-
-    def close(self):
-        if self.window is not None:
-            pygame.display.quit()
-            pygame.quit()
             
 #a = SliceCreationEnv4()
 #check_env(a)

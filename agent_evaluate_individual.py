@@ -2,9 +2,11 @@ import gymnasium as gym
 
 from stable_baselines3 import DQN
 
-from gym_examples.envs.slice_creation_env5_training2405 import SliceCreationEnv5
+from gym_examples.envs.slice_creation_env5 import SliceCreationEnv5
 
 import numpy as np
+
+import torch, os
 
 def calculate_utilization_mec(parameter, current, total):
     
@@ -38,6 +40,9 @@ def find_index(dicts, key, value):
 
 env1 = SliceCreationEnv5()
 
+# Force PyTorch to use CPU
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+device = torch.device("cpu")
 
 model1 = DQN.load("Trained_Models/client_1_model_round_5.zip", env1)
 
@@ -53,7 +58,7 @@ ran_bwp1_utilization = []
 ran_bwp2_utilization = []
 
 
-while cont<500:
+while cont<99:
     action1, _states1 = model1.predict(obs1, deterministic=True)
 
     if action1 == 0: cont_rejections += 1
