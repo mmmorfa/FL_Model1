@@ -18,7 +18,7 @@ The use case scenario simulates a smart city with four nodes, each representing 
 
 3. **Trained_Models**:
    - Contains the exported DQN models:
-     - Models 1 (dedicated to admission control).
+     - Models 1 (dedicated to slice admission control).
      - Models 2 (dedicated to maintaining QoS).
 
 4. **gym_examples**:
@@ -69,7 +69,7 @@ The use case scenario simulates a smart city with four nodes, each representing 
   - Manages the aggregation of DQN models from the clients using FL.
 - **Clients**:
   - Four near-RT RIC nodes, each hosting:
-    - **Model 1**: Handles admission control for radio and MEC resources.
+    - **Model 1**: Handles slice admission control for radio and MEC resources.
     - **Model 2**: Ensures QoS for processed slices.
 
 ### **Communication**
@@ -110,7 +110,7 @@ Evaluate the performance of individual nodes, including Models 1 and 2, and thei
    - Load the desired DQN Model 1 and Model 2 from the `Trained_Models` folder.
 
 3. **Set Evaluation Parameters**:
-   - Modify the evaluation period by adjusting the `while` loop condition in `agent_evaluate_system.py` and the `NUM_VNF_REQUESTS` variable in the global section of the selected environment.
+   - Modify the evaluation period by adjusting the `while` loop condition in `agent_evaluate_system.py` and the `NUM_VNF_REQUESTS` variable in the "VNF Generator GLOBALS" section of the selected environment.
 
 4. **Run Evaluation**:
    - Execute `agent_evaluate_system.py` to evaluate the selected node and generate performance plots.
@@ -135,6 +135,7 @@ Evaluate the performance of individual nodes, including Models 1 and 2, and thei
 ## **Contributors**
 Developed and maintained by [mmmorfa](https://github.com/mmmorfa).
 
+This work was supported by the Spanish Ministry of Economic Affairs and Digital Transformation and the European Union—NextGenerationEU, in the framework of the Recovery Plan, Transformation and Resilience (PRTR) (Call UNICO I+D 5G 2021, ref. number TSI-063000-2021-3/6/7–OPEN6G), and by the Agencia Estatal de Investigacion of Ministerio de Ciencia e Innovacion of Spain under project PID2022-137329OB-C41/ MCIN/ AEI/10.13039/50110001103.
 ---
 
 For questions, issues, or contributions, feel free to open an issue or submit a pull request in this repository!
