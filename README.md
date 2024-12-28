@@ -124,6 +124,24 @@ Evaluate the performance of individual nodes, including Models 1 and 2, and thei
 4. **Run Evaluation**:
    - Execute `agent_evaluate_system.py` to evaluate the selected node and generate performance plots.
 
+### **3. Visualization of training results**
+As defined in the initialization method of the `DQNClient` class developed in the `DQN_client_fw.py` script, the logs of each client's training process are automatically exported to a subfolder identified with the unique identifier of each implemented client. This is achieved using the Logger class provided by Stable Baselines3, which allows exporting such results in various formats and in key/value pairs. Depending on the algorithm used and the wrappers/callbacks applied, Stable Baselines3 logs a subset of these keys during training.
+
+Once training is complete, the `parse_logs.py` script can be run to interpret the exported logs and generate the result plots discussed during this report. 
+
+The `parse_and_plot_all_rounds` function receives each client's log files that need to be visualized (including the path of the respective logs in the `log_files` variable) and plots the required results parameter. 
+
+To add plots to the results visualization it is necessary to include the code for a new plot following the format:
+
+```
+for round_idx, round_df in enumerate(rounds, start=1):
+   plt.plot(round_df['time/total_timesteps'],
+            round_df['rollout/exploration_rate'], 
+            label=f'Round {round_idx}', color=colors[round_idx - 1])
+```
+
+where the `round_df` dictionary keys corresponding to the parameters to be displayed are substituted. This loop iterates through all the rounds in which the client participates.
+
 ---
 
 ## **Features**
