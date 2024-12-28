@@ -79,6 +79,13 @@ The use case scenario simulates a smart city with four nodes, each representing 
 
 ## **Usage Instructions**
 
+### **Installing required dependencies**
+Install the dependencies required to use the Stable Baselines3 framework by executing the following command:
+`pip install stable-baselines3[extra]`
+
+Install the required dependencies to use the Flower framework by executing the following command:
+`pip install flwr`
+
 ### **1. Training Phase**
 The following steps outline the training process for the FDRL system:
 
