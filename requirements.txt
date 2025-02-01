@@ -1,0 +1,2 @@
+gymnasium==1.0.0
+stable_baselines3[extra]

@@ -17,7 +17,7 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 # ****************************** VNF Generator GLOBALS ******************************
 # File directory
-db_name = '/home/mario/Documents/FL_Model1-main/gym_examples/slice_request_db{}'.format(datetime.datetime.now())
+db_name = 'gym_examples/slice_request_db{}'.format(datetime.datetime.now())
 DIRECTORY = db_name
 
 # Number of VNF types dictionary

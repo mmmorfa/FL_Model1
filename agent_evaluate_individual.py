@@ -6,7 +6,7 @@ from gym_examples.envs.slice_creation_env5 import SliceCreationEnv5
 
 import numpy as np
 
-import torch, os
+import torch, os, time
 
 def calculate_utilization_mec(parameter, current, total):
     
@@ -57,9 +57,16 @@ mec_bw_utilization = []
 ran_bwp1_utilization = []
 ran_bwp2_utilization = []
 
+time_list = []
 
 while cont<99:
+    
+    start_time = time.perf_counter()
     action1, _states1 = model1.predict(obs1, deterministic=True)
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    time_list.append(elapsed_time)
+
 
     if action1 == 0: cont_rejections += 1
 
@@ -72,10 +79,10 @@ while cont<99:
     calculate_utilization_ran('bwp1', env1.PRB_map1)
     calculate_utilization_ran('bwp2', env1.PRB_map2)
 
-    print("Model 1: ",'Action: ', action1,'Observation: ', obs1, ' | Reward: ', reward1, ' | Terminated: ', terminated1)
+    print("Model 1: ",'Action: ', action1,'Observation: ', obs1, ' | Reward: ', reward1, ' | Terminated: ', terminated1, f'Execution time: {elapsed_time:.6f}' )
 
     cont += 1
     if terminated1 or truncated1:
         obs1, info1 = env1.reset()
 
-
+print('Average execution time: ', np.mean(time_list))
